@@ -1,0 +1,33 @@
+# Weights & Biases configuration
+
+wandb:
+  # Whether to use W&B logging
+  enabled: false
+  
+  # W&B project name
+  project: "literl"
+  
+  # W&B entity/team name (optional)
+  entity: null
+  
+  # Run name (optional, will auto-generate if not set)
+  name: null
+  
+  # W&B tags
+  tags: []
+  
+  # W&B group (for grouping related runs)
+  group: null
+  
+  # Resume policy: "allow", "must", "never", "auto"
+  resume: "allow"
+  
+  # Directory for W&B files
+  dir: null  # Will use output_dir/wandb if null
+  
+  # Whether to sync only at the end (faster, but less real-time)
+  sync_tensorboard: false
+  
+  # Additional W&B config to log
+  log_config: true
+

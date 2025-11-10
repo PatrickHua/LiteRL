@@ -1,0 +1,54 @@
+# Task-specific configuration
+# Math problem solving task
+
+# Task name
+task_name: "math"
+
+# Dataset loaders
+train_loader:
+  function:
+    name: tasks.math.load_math_datasets
+    dataset_name: "hendrycks_math"
+    split: "test" # debug
+
+test_loader:
+  function:
+    name: tasks.math.load_math_datasets
+    dataset_name: "hendrycks_math"
+    split: "test"
+
+# Rollout policy (how to generate samples)
+rollout:
+  # Rollout function (will be implemented)
+  function: "tasks.math.generate_math_rollout"
+  # System prompt for math problems
+  system_prompt: "Please reason step by step, and put your final answer within \\boxed{}."
+  # Task template (how to format the problem)
+  task_template: "{task}"
+  # Number of rollouts per problem
+  attempts: 1  # Start with 1 for MVP
+
+# Reward configuration
+reward:
+  # Reward function (will be implemented)
+  function: "tasks.math.compute_math_reward"
+  # Whether to normalize advantages
+  normalize_advantages: true
+
+# Preprocessing
+preprocessing:
+  max_seq_length: 8192
+  # Whether to compute reference logprobs (for KL penalty)
+  use_reference_model: false
+
+# Training configuration
+training:
+  batch_size: 1  # Reduced from 8 due to memory constraints (use gradient_accumulation_steps to simulate larger batches)
+  gradient_accumulation_steps: 8  # Accumulate gradients over 8 steps to simulate batch_size=8
+  learning_rate: 1e-6
+  max_seq_length: 4096  # Reduced from 8192 to save memory (can increase if memory allows)
+  device: "cuda:4"  # Single GPU for MVP (or "cpu" if no GPU)
+  optimizer: "adamw"
+  weight_decay: 0.01
+  save_every_n_steps: 10  # Save checkpoint every N training steps
+

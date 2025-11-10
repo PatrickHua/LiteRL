@@ -1,0 +1,17 @@
+# Model configuration
+# Model path, tokenizer, vLLM settings
+
+# Model path (HuggingFace model name or local path)
+model_path: "Qwen/Qwen3-0.6B"
+
+# Tokenizer (usually same as model_path)
+tokenizer_path: "${model_path}"
+
+
+# Generation parameters
+generation:
+  max_tokens: 4096
+  temperature: 1.0
+  top_p: 1.0
+  top_k: -1  # -1 means disabled
+

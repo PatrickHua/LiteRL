@@ -1,0 +1,23 @@
+# Main configuration file
+# Uses Hydra defaults pattern to compose configs
+
+defaults:
+  - infra
+  - model
+  - task
+  - wandb
+  - _self_
+
+# Global settings
+seed: 42
+output_dir: "outputs"
+
+# Sampling/inference settings
+max_problems: 10  # Maximum number of problems to sample (for testing/MVP)
+
+# Override paths to use output_dir
+paths:
+  output_dir: ${output_dir}
+  checkpoints_dir: "${paths.output_dir}/checkpoints"
+  streams_dir: "${paths.output_dir}/streams"
+

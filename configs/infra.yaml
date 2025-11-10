@@ -1,0 +1,82 @@
+# Infrastructure configuration
+# GPU, ports, paths, streams
+
+# GPU configuration
+gpu:
+  # Actor (vLLM sampler) GPU allocation
+  actor:
+    device_ids: [1]  # GPU device IDs for actor vLLM server (changed from 0 to avoid conflict)
+    tensor_parallel_size: 1  # Tensor parallelism for actor model
+    pipeline_parallel_size: 1  # Pipeline parallelism for actor model
+    # Total GPUs needed = tensor_parallel_size * pipeline_parallel_size
+  
+  # Reference model GPU allocation (optional, for KL penalty)
+  reference:
+    enabled: false  # Whether to use reference model
+    device_ids: [1]  # GPU device IDs for reference model
+    tensor_parallel_size: 1
+    pipeline_parallel_size: 1
+  
+  # Trainer GPU allocation
+  trainer:
+    device_ids: [2, 3]  # GPU device IDs for trainer
+    # FSDP configuration for trainer
+    fsdp:
+      enabled: false  # Use FSDP for distributed training
+      # If FSDP disabled, will use single GPU or DataParallel
+      sharding_strategy: "FULL_SHARD"  # FULL_SHARD, SHARD_GRAD_OP, NO_SHARD
+      cpu_offload: false
+      mixed_precision: "bf16"  # bf16, fp16, fp32
+      # FSDP auto wrap policy
+      auto_wrap_policy: "transformer"  # transformer, size_based, or custom
+      min_num_params: 1e6  # For size_based policy
+  
+  # Global GPU settings
+  cuda_visible_devices: null  # Override CUDA_VISIBLE_DEVICES if set (e.g., "0,1,2,3")
+
+
+# vLLM server configuration
+vllm:
+  # Server connection settings
+  server:
+    host: "0.0.0.0"  # Host to bind vLLM server
+    port: 8080  # Port for vLLM server
+  
+  # Model and generation settings
+  dtype: "bfloat16"
+  gpu_memory_utilization: 0.9
+  max_model_len: 8192
+  # tensor_parallel_size and pipeline_parallel_size are set in gpu.actor above
+  max_num_seqs: 64
+  max_num_batched_tokens: 1024
+  enable_chunked_prefill: true
+  trust_remote_code: false
+  
+  # Additional vLLM settings
+  num_scheduler_steps: 1
+  disable_log_requests: false
+  disable_frontend_multiprocessing: false
+  
+  # Concurrency control
+  max_concurrent: ${vllm.max_num_seqs}  # Maximum concurrent requests to vLLM server.
+                        # If null, defaults to max_num_seqs (64)
+                        # Set lower (e.g., 50) to leave headroom for other operations
+
+# Paths
+paths:
+  output_dir: "outputs"  # Base output directory
+  checkpoints_dir: "${paths.output_dir}/checkpoints"
+  streams_dir: "${paths.output_dir}/streams"
+  logs_dir: "${paths.output_dir}/logs"
+
+# Streams configuration
+streams:
+  backend: "files"  # Only files for now (simplified)
+  training_data: "${paths.streams_dir}/training_data.jsonl"
+  weight_updates: "${paths.streams_dir}/weight_updates.jsonl"
+
+# Logging
+logging:
+  level: "INFO"
+  log_dir: "${paths.output_dir}/logs"
+
